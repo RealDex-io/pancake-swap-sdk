@@ -34,9 +34,9 @@ var Rounding;
   Rounding[Rounding["ROUND_UP"] = 2] = "ROUND_UP";
 })(Rounding || (Rounding = {}));
 
-var FACTORY_ADDRESS = '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73';
+var FACTORY_ADDRESS = '0x6a8b788f7FD860CdE5DFDF6e4E2FA673e1B2f11a';
 var FACTORY_ADDRESS_MAP = (_FACTORY_ADDRESS_MAP = {}, _FACTORY_ADDRESS_MAP[ChainId.MAINNET] = FACTORY_ADDRESS, _FACTORY_ADDRESS_MAP[ChainId.TESTNET] = '0x6a8b788f7FD860CdE5DFDF6e4E2FA673e1B2f11a', _FACTORY_ADDRESS_MAP);
-var INIT_CODE_HASH = '0x00fb7f630766e6a796048ea87d01acd3068e8ff67d078148a3fa3f4a84f69bd5';
+var INIT_CODE_HASH = '0x7e0874fa318eaf1fd6d9bdcf81cbea0ab5298196de8d27fcf83ee15c98e91e77';
 var INIT_CODE_HASH_MAP = (_INIT_CODE_HASH_MAP = {}, _INIT_CODE_HASH_MAP[ChainId.MAINNET] = INIT_CODE_HASH, _INIT_CODE_HASH_MAP[ChainId.TESTNET] = '0x7e0874fa318eaf1fd6d9bdcf81cbea0ab5298196de8d27fcf83ee15c98e91e77', _INIT_CODE_HASH_MAP);
 var MINIMUM_LIQUIDITY = /*#__PURE__*/JSBI.BigInt(1000); // exports for internal consumption
 
@@ -700,7 +700,7 @@ var Price = /*#__PURE__*/function (_Fraction) {
       var _step$value = _step.value,
           i = _step$value[0],
           pair = _step$value[1];
-      prices.push(route.path[i].equals(pair.token0) ? new Price(pair.aReserve0.currency, pair.aReserve1.currency, pair.aReserve0.raw, pair.aReserve1.raw) : new Price(pair.aReserve1.currency, pair.aReserve0.currency, pair.aReserve1.raw, pair.aReserve0.raw));
+      prices.push(route.path[i].equals(pair.token0) ? new Price(pair.reserve0.currency, pair.reserve1.currency, pair.reserve0.raw, pair.reserve1.raw) : new Price(pair.reserve1.currency, pair.reserve0.currency, pair.reserve1.raw, pair.reserve0.raw));
     }
 
     return prices.slice(1).reduce(function (accumulator, currentValue) {
@@ -764,37 +764,21 @@ var Price = /*#__PURE__*/function (_Fraction) {
   return Price;
 }(Fraction);
 
-var PAIR_ADDRESS_CACHE = {};
-
-var composeKey = function composeKey(token0, token1) {
-  return token0.chainId + "-" + token0.address + "-" + token1.address;
-};
-
 var Pair = /*#__PURE__*/function () {
-  function Pair(tokenAmountA, tokenAmountB, aTokenAmountA, aTokenAmountB) {
+  function Pair(tokenAmountA, tokenAmountB) {
     var tokenAmounts = tokenAmountA.token.sortsBefore(tokenAmountB.token) // does safety checks
-    ? [tokenAmountA, tokenAmountB, aTokenAmountA, aTokenAmountB] : [tokenAmountB, tokenAmountA, aTokenAmountB, aTokenAmountA];
+    ? [tokenAmountA, tokenAmountB] : [tokenAmountB, tokenAmountA];
     this.liquidityToken = new Token(tokenAmounts[0].token.chainId, Pair.getAddress(tokenAmounts[0].token, tokenAmounts[1].token), 18, 'Cake-LP', 'Pancake LPs');
     this.tokenAmounts = tokenAmounts;
   }
 
   Pair.getAddress = function getAddress(tokenA, tokenB) {
-    var _PAIR_ADDRESS_CACHE;
-
     var _ref = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA],
         token0 = _ref[0],
         token1 = _ref[1]; // does safety checks
 
 
-    var key = composeKey(token0, token1);
-
-    if (((_PAIR_ADDRESS_CACHE = PAIR_ADDRESS_CACHE) === null || _PAIR_ADDRESS_CACHE === void 0 ? void 0 : _PAIR_ADDRESS_CACHE[key]) === undefined) {
-      var _extends2;
-
-      PAIR_ADDRESS_CACHE = _extends({}, PAIR_ADDRESS_CACHE, (_extends2 = {}, _extends2[key] = getCreate2Address(FACTORY_ADDRESS_MAP[token0.chainId], keccak256(['bytes'], [pack(['address', 'address'], [token0.address, token1.address])]), INIT_CODE_HASH_MAP[token0.chainId]), _extends2));
-    }
-
-    return PAIR_ADDRESS_CACHE[key];
+    return getCreate2Address(FACTORY_ADDRESS_MAP[token0.chainId], keccak256(['bytes'], [pack(['address', 'address'], [token0.address, token1.address])]), INIT_CODE_HASH_MAP[token0.chainId]);
   }
   /**
    * Returns true if the token is either token0 or token1
@@ -830,11 +814,6 @@ var Pair = /*#__PURE__*/function () {
     return token.equals(this.token0) ? this.reserve0 : this.reserve1;
   };
 
-  _proto.aReserveOf = function aReserveOf(token) {
-    !this.involvesToken(token) ? process.env.NODE_ENV !== "production" ? invariant(false, 'TOKEN') : invariant(false) : void 0;
-    return token.equals(this.token0) ? this.aReserve0 : this.aReserve1;
-  };
-
   _proto.getOutputAmount = function getOutputAmount(inputAmount) {
     !this.involvesToken(inputAmount.token) ? process.env.NODE_ENV !== "production" ? invariant(false, 'TOKEN') : invariant(false) : void 0;
 
@@ -842,20 +821,18 @@ var Pair = /*#__PURE__*/function () {
       throw new InsufficientReservesError();
     }
 
-    var inputAmpReserve = this.aReserveOf(inputAmount.token);
-    var outputAmpReserve = this.aReserveOf(inputAmount.token.equals(this.token0) ? this.token1 : this.token0);
     var inputReserve = this.reserveOf(inputAmount.token);
     var outputReserve = this.reserveOf(inputAmount.token.equals(this.token0) ? this.token1 : this.token0);
     var inputAmountWithFee = JSBI.multiply(inputAmount.raw, FEES_NUMERATOR);
-    var numerator = JSBI.multiply(inputAmountWithFee, outputAmpReserve.raw);
-    var denominator = JSBI.add(JSBI.multiply(inputAmpReserve.raw, FEES_DENOMINATOR), inputAmountWithFee);
+    var numerator = JSBI.multiply(inputAmountWithFee, outputReserve.raw);
+    var denominator = JSBI.add(JSBI.multiply(inputReserve.raw, FEES_DENOMINATOR), inputAmountWithFee);
     var outputAmount = new TokenAmount(inputAmount.token.equals(this.token0) ? this.token1 : this.token0, JSBI.divide(numerator, denominator));
 
     if (JSBI.equal(outputAmount.raw, ZERO)) {
       throw new InsufficientInputAmountError();
     }
 
-    return [outputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount), inputAmpReserve.add(inputAmount), outputAmpReserve.subtract(outputAmount))];
+    return [outputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount))];
   };
 
   _proto.getInputAmount = function getInputAmount(outputAmount) {
@@ -865,14 +842,12 @@ var Pair = /*#__PURE__*/function () {
       throw new InsufficientReservesError();
     }
 
-    var outputAmpReserve = this.aReserveOf(outputAmount.token);
-    var inputAmpReserve = this.aReserveOf(outputAmount.token.equals(this.token0) ? this.token1 : this.token0);
     var outputReserve = this.reserveOf(outputAmount.token);
     var inputReserve = this.reserveOf(outputAmount.token.equals(this.token0) ? this.token1 : this.token0);
-    var numerator = JSBI.multiply(JSBI.multiply(inputAmpReserve.raw, outputAmount.raw), FEES_DENOMINATOR);
-    var denominator = JSBI.multiply(JSBI.subtract(outputAmpReserve.raw, outputAmount.raw), FEES_NUMERATOR);
+    var numerator = JSBI.multiply(JSBI.multiply(inputReserve.raw, outputAmount.raw), FEES_DENOMINATOR);
+    var denominator = JSBI.multiply(JSBI.subtract(outputReserve.raw, outputAmount.raw), FEES_NUMERATOR);
     var inputAmount = new TokenAmount(outputAmount.token.equals(this.token0) ? this.token1 : this.token0, JSBI.add(JSBI.divide(numerator, denominator), ONE));
-    return [inputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount), inputAmpReserve.add(inputAmount), outputAmpReserve.subtract(outputAmount))];
+    return [inputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount))];
   };
 
   _proto.getLiquidityMinted = function getLiquidityMinted(totalSupply, tokenAmountA, tokenAmountB) {
@@ -937,7 +912,7 @@ var Pair = /*#__PURE__*/function () {
   _createClass(Pair, [{
     key: "token0Price",
     get: function get() {
-      return new Price(this.token0, this.token1, this.tokenAmounts[2].raw, this.tokenAmounts[3].raw);
+      return new Price(this.token0, this.token1, this.tokenAmounts[0].raw, this.tokenAmounts[1].raw);
     }
     /**
      * Returns the current mid price of the pair in terms of token1, i.e. the ratio of reserve0 to reserve1
@@ -946,7 +921,7 @@ var Pair = /*#__PURE__*/function () {
   }, {
     key: "token1Price",
     get: function get() {
-      return new Price(this.token1, this.token0, this.tokenAmounts[3].raw, this.tokenAmounts[2].raw);
+      return new Price(this.token1, this.token0, this.tokenAmounts[1].raw, this.tokenAmounts[0].raw);
     }
   }, {
     key: "chainId",
@@ -972,16 +947,6 @@ var Pair = /*#__PURE__*/function () {
     key: "reserve1",
     get: function get() {
       return this.tokenAmounts[1];
-    }
-  }, {
-    key: "aReserve0",
-    get: function get() {
-      return this.tokenAmounts[2];
-    }
-  }, {
-    key: "aReserve1",
-    get: function get() {
-      return this.tokenAmounts[3];
     }
   }]);
 
