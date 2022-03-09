@@ -19,9 +19,9 @@ export class Price extends Fraction {
     const prices: Price[] = []
     for (const [i, pair] of route.pairs.entries()) {
       prices.push(
-        route.path[i].equals(pair.token0)
-          ? new Price(pair.reserve0.currency, pair.reserve1.currency, pair.reserve0.raw, pair.reserve1.raw)
-          : new Price(pair.reserve1.currency, pair.reserve0.currency, pair.reserve1.raw, pair.reserve0.raw)
+          route.path[i].equals(pair.token0)
+              ? new Price(pair.aReserve0.currency, pair.aReserve1.currency, pair.aReserve0.raw, pair.aReserve1.raw)
+              : new Price(pair.aReserve1.currency, pair.aReserve0.currency, pair.aReserve1.raw, pair.aReserve0.raw)
       )
     }
     return prices.slice(1).reduce((accumulator, currentValue) => accumulator.multiply(currentValue), prices[0])
@@ -34,8 +34,8 @@ export class Price extends Fraction {
     this.baseCurrency = baseCurrency
     this.quoteCurrency = quoteCurrency
     this.scalar = new Fraction(
-      JSBI.exponentiate(TEN, JSBI.BigInt(baseCurrency.decimals)),
-      JSBI.exponentiate(TEN, JSBI.BigInt(quoteCurrency.decimals))
+        JSBI.exponentiate(TEN, JSBI.BigInt(baseCurrency.decimals)),
+        JSBI.exponentiate(TEN, JSBI.BigInt(quoteCurrency.decimals))
     )
   }
 

@@ -35,9 +35,9 @@ var _FACTORY_ADDRESS_MAP, _INIT_CODE_HASH_MAP, _SOLIDITY_TYPE_MAXIMA;
 })(exports.Rounding || (exports.Rounding = {}));
 
 var FACTORY_ADDRESS = '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73';
-var FACTORY_ADDRESS_MAP = (_FACTORY_ADDRESS_MAP = {}, _FACTORY_ADDRESS_MAP[exports.ChainId.MAINNET] = FACTORY_ADDRESS, _FACTORY_ADDRESS_MAP[exports.ChainId.TESTNET] = '0xb3153f0F8fFeFD13E2Cc1228F79B1a53A733B7e5', _FACTORY_ADDRESS_MAP);
+var FACTORY_ADDRESS_MAP = (_FACTORY_ADDRESS_MAP = {}, _FACTORY_ADDRESS_MAP[exports.ChainId.MAINNET] = FACTORY_ADDRESS, _FACTORY_ADDRESS_MAP[exports.ChainId.TESTNET] = '0x6a8b788f7FD860CdE5DFDF6e4E2FA673e1B2f11a', _FACTORY_ADDRESS_MAP);
 var INIT_CODE_HASH = '0x00fb7f630766e6a796048ea87d01acd3068e8ff67d078148a3fa3f4a84f69bd5';
-var INIT_CODE_HASH_MAP = (_INIT_CODE_HASH_MAP = {}, _INIT_CODE_HASH_MAP[exports.ChainId.MAINNET] = INIT_CODE_HASH, _INIT_CODE_HASH_MAP[exports.ChainId.TESTNET] = '0x0bc2ee24941b52bdd48028a079274c1c26aad43f9bc5f54981de8ccd3d079b9d', _INIT_CODE_HASH_MAP);
+var INIT_CODE_HASH_MAP = (_INIT_CODE_HASH_MAP = {}, _INIT_CODE_HASH_MAP[exports.ChainId.MAINNET] = INIT_CODE_HASH, _INIT_CODE_HASH_MAP[exports.ChainId.TESTNET] = '0x7e0874fa318eaf1fd6d9bdcf81cbea0ab5298196de8d27fcf83ee15c98e91e77', _INIT_CODE_HASH_MAP);
 var MINIMUM_LIQUIDITY = /*#__PURE__*/JSBI.BigInt(1000); // exports for internal consumption
 
 var ZERO = /*#__PURE__*/JSBI.BigInt(0);
@@ -47,8 +47,8 @@ var THREE = /*#__PURE__*/JSBI.BigInt(3);
 var FIVE = /*#__PURE__*/JSBI.BigInt(5);
 var TEN = /*#__PURE__*/JSBI.BigInt(10);
 var _100 = /*#__PURE__*/JSBI.BigInt(100);
-var FEES_NUMERATOR = /*#__PURE__*/JSBI.BigInt(9975);
-var FEES_DENOMINATOR = /*#__PURE__*/JSBI.BigInt(10000);
+var FEES_NUMERATOR = /*#__PURE__*/JSBI.BigInt(997);
+var FEES_DENOMINATOR = /*#__PURE__*/JSBI.BigInt(1000);
 var SolidityType;
 
 (function (SolidityType) {
@@ -700,7 +700,7 @@ var Price = /*#__PURE__*/function (_Fraction) {
       var _step$value = _step.value,
           i = _step$value[0],
           pair = _step$value[1];
-      prices.push(route.path[i].equals(pair.token0) ? new Price(pair.reserve0.currency, pair.reserve1.currency, pair.reserve0.raw, pair.reserve1.raw) : new Price(pair.reserve1.currency, pair.reserve0.currency, pair.reserve1.raw, pair.reserve0.raw));
+      prices.push(route.path[i].equals(pair.token0) ? new Price(pair.aReserve0.currency, pair.aReserve1.currency, pair.aReserve0.raw, pair.aReserve1.raw) : new Price(pair.aReserve1.currency, pair.aReserve0.currency, pair.aReserve1.raw, pair.aReserve0.raw));
     }
 
     return prices.slice(1).reduce(function (accumulator, currentValue) {
