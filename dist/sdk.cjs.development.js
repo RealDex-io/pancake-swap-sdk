@@ -764,6 +764,12 @@ var Price = /*#__PURE__*/function (_Fraction) {
   return Price;
 }(Fraction);
 
+var PAIR_ADDRESS_CACHE = {};
+
+var composeKey = function composeKey(token0, token1) {
+  return token0.chainId + "-" + token0.address + "-" + token1.address;
+};
+
 var Pair = /*#__PURE__*/function () {
   function Pair(tokenAmountA, reserveAmountA, reserveAmountB, tokenAmountB) {
     var tokenAmounts = tokenAmountA.token.sortsBefore(tokenAmountB.token) // does safety checks
@@ -776,12 +782,22 @@ var Pair = /*#__PURE__*/function () {
   }
 
   Pair.getAddress = function getAddress(tokenA, tokenB) {
+    var _PAIR_ADDRESS_CACHE;
+
     var _ref = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA],
         token0 = _ref[0],
         token1 = _ref[1]; // does safety checks
 
 
-    return address.getCreate2Address(FACTORY_ADDRESS_MAP[token0.chainId], solidity.keccak256(['bytes'], [solidity.pack(['address', 'address'], [token0.address, token1.address])]), INIT_CODE_HASH_MAP[token0.chainId]);
+    var key = composeKey(token0, token1);
+
+    if (((_PAIR_ADDRESS_CACHE = PAIR_ADDRESS_CACHE) === null || _PAIR_ADDRESS_CACHE === void 0 ? void 0 : _PAIR_ADDRESS_CACHE[key]) === undefined) {
+      var _extends2;
+
+      PAIR_ADDRESS_CACHE = _extends({}, PAIR_ADDRESS_CACHE, (_extends2 = {}, _extends2[key] = address.getCreate2Address(FACTORY_ADDRESS_MAP[token0.chainId], solidity.keccak256(['bytes'], [solidity.pack(['address', 'address'], [token0.address, token1.address])]), INIT_CODE_HASH_MAP[token0.chainId]), _extends2));
+    }
+
+    return PAIR_ADDRESS_CACHE[key];
   }
   /**
    * Returns true if the token is either token0 or token1
