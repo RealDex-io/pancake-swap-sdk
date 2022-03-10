@@ -771,7 +771,7 @@ var composeKey = function composeKey(token0, token1) {
 };
 
 var Pair = /*#__PURE__*/function () {
-  function Pair(tokenAmountA, reserveAmountA, reserveAmountB, tokenAmountB) {
+  function Pair(tokenAmountA, tokenAmountB, reserveAmountA, reserveAmountB) {
     var tokenAmounts = tokenAmountA.token.sortsBefore(tokenAmountB.token) // does safety checks
     ? [tokenAmountA, tokenAmountB] : [tokenAmountB, tokenAmountA];
     var reserveAmounts = tokenAmountA.token.sortsBefore(tokenAmountB.token) // does safety checks
@@ -888,8 +888,8 @@ var Pair = /*#__PURE__*/function () {
     if (JSBI.equal(totalSupply.raw, ZERO)) {
       liquidity = JSBI.subtract(sqrt(JSBI.multiply(tokenAmounts[0].raw, tokenAmounts[1].raw)), MINIMUM_LIQUIDITY);
     } else {
-      var amount0 = JSBI.divide(JSBI.multiply(tokenAmounts[0].raw, totalSupply.raw), this.reserve0.raw);
-      var amount1 = JSBI.divide(JSBI.multiply(tokenAmounts[1].raw, totalSupply.raw), this.reserve1.raw);
+      var amount0 = JSBI.divide(JSBI.multiply(tokenAmounts[0].raw, totalSupply.raw), this.realReserve0.raw);
+      var amount1 = JSBI.divide(JSBI.multiply(tokenAmounts[1].raw, totalSupply.raw), this.realReserve1.raw);
       liquidity = JSBI.lessThanOrEqual(amount0, amount1) ? amount0 : amount1;
     }
 

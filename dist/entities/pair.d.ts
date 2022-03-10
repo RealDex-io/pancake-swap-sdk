@@ -7,7 +7,7 @@ export declare class Pair {
     private readonly tokenAmounts;
     private readonly reserveAmounts;
     static getAddress(tokenA: Token, tokenB: Token): string;
-    constructor(tokenAmountA: TokenAmount, reserveAmountA: TokenAmount, reserveAmountB: TokenAmount, tokenAmountB: TokenAmount);
+    constructor(tokenAmountA: TokenAmount, tokenAmountB: TokenAmount, reserveAmountA: TokenAmount, reserveAmountB: TokenAmount);
     /**
      * Returns true if the token is either token0 or token1
      * @param token to check
