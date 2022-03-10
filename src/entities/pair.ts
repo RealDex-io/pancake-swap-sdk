@@ -24,6 +24,7 @@ import { Token } from './token'
 export class Pair {
   public readonly liquidityToken: Token
   private readonly tokenAmounts: [TokenAmount, TokenAmount]
+  private readonly reserveAmounts: [TokenAmount, TokenAmount]
 
   public static getAddress(tokenA: Token, tokenB: Token): string {
     const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA] // does safety checks
@@ -34,10 +35,13 @@ export class Pair {
     )
   }
 
-  public constructor(tokenAmountA: TokenAmount, tokenAmountB: TokenAmount) {
+  public constructor(tokenAmountA: TokenAmount, reserveAmountA: TokenAmount, reserveAmountB: TokenAmount, tokenAmountB: TokenAmount) {
     const tokenAmounts = tokenAmountA.token.sortsBefore(tokenAmountB.token) // does safety checks
         ? [tokenAmountA, tokenAmountB]
         : [tokenAmountB, tokenAmountA]
+    const reserveAmounts = tokenAmountA.token.sortsBefore(tokenAmountB.token) // does safety checks
+        ? [reserveAmountA, reserveAmountB]
+        : [reserveAmountB, reserveAmountA]
     this.liquidityToken = new Token(
         tokenAmounts[0].token.chainId,
         Pair.getAddress(tokenAmounts[0].token, tokenAmounts[1].token),
@@ -46,6 +50,7 @@ export class Pair {
         'Pancake LPs'
     )
     this.tokenAmounts = tokenAmounts as [TokenAmount, TokenAmount]
+    this.reserveAmounts = reserveAmounts as [TokenAmount, TokenAmount]
   }
 
   /**
@@ -102,9 +107,22 @@ export class Pair {
     return this.tokenAmounts[1]
   }
 
+  public get realReserve0(): TokenAmount {
+    return this.reserveAmounts[0]
+  }
+
+  public get realReserve1(): TokenAmount {
+    return this.reserveAmounts[1]
+  }
+
   public reserveOf(token: Token): TokenAmount {
     invariant(this.involvesToken(token), 'TOKEN')
     return token.equals(this.token0) ? this.reserve0 : this.reserve1
+  }
+
+  public realReserveOf(token: Token): TokenAmount {
+    invariant(this.involvesToken(token), 'TOKEN')
+    return token.equals(this.token0) ? this.realReserve0 : this.realReserve1
   }
 
   public getOutputAmount(inputAmount: TokenAmount): [TokenAmount, Pair] {
@@ -124,7 +142,9 @@ export class Pair {
     if (JSBI.equal(outputAmount.raw, ZERO)) {
       throw new InsufficientInputAmountError()
     }
-    return [outputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount))]
+    const inputRealReserve = this.realReserveOf(inputAmount.token)
+    const outputRealReserve = this.realReserveOf(inputAmount.token.equals(this.token0) ? this.token1 : this.token0)
+    return [outputAmount, new Pair(inputReserve.add(inputAmount), inputRealReserve.add(inputAmount), outputRealReserve.subtract(outputAmount), outputReserve.subtract(outputAmount))]
   }
 
   public getInputAmount(outputAmount: TokenAmount): [TokenAmount, Pair] {
@@ -145,7 +165,9 @@ export class Pair {
         outputAmount.token.equals(this.token0) ? this.token1 : this.token0,
         JSBI.add(JSBI.divide(numerator, denominator), ONE)
     )
-    return [inputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount))]
+    const outputRealReserve = this.realReserveOf(outputAmount.token)
+    const inputRealReserve = this.realReserveOf(outputAmount.token.equals(this.token0) ? this.token1 : this.token0)
+    return [inputAmount, new Pair(inputReserve.add(inputAmount), inputRealReserve.add(inputAmount), outputRealReserve.subtract(outputAmount), outputReserve.subtract(outputAmount))]
   }
 
   public getLiquidityMinted(
@@ -192,7 +214,7 @@ export class Pair {
       invariant(!!kLast, 'K_LAST')
       const kLastParsed = parseBigintIsh(kLast)
       if (!JSBI.equal(kLastParsed, ZERO)) {
-        const rootK = sqrt(JSBI.multiply(this.reserve0.raw, this.reserve1.raw))
+        const rootK = sqrt(JSBI.multiply(this.realReserve0.raw, this.realReserve1.raw))
         const rootKLast = sqrt(kLastParsed)
         if (JSBI.greaterThan(rootK, rootKLast)) {
           const numerator = JSBI.multiply(totalSupply.raw, JSBI.subtract(rootK, rootKLast))
