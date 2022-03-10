@@ -158,7 +158,7 @@ export class Pair {
     }
     const inputRealReserve = this.realReserveOf(inputAmount.token)
     const outputRealReserve = this.realReserveOf(inputAmount.token.equals(this.token0) ? this.token1 : this.token0)
-    return [outputAmount, new Pair(inputReserve.add(inputAmount), inputRealReserve.add(inputAmount), outputRealReserve.subtract(outputAmount), outputReserve.subtract(outputAmount))]
+    return [outputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount), inputRealReserve.add(inputAmount), outputRealReserve.subtract(outputAmount))]
   }
 
   public getInputAmount(outputAmount: TokenAmount): [TokenAmount, Pair] {
@@ -181,7 +181,7 @@ export class Pair {
     )
     const outputRealReserve = this.realReserveOf(outputAmount.token)
     const inputRealReserve = this.realReserveOf(outputAmount.token.equals(this.token0) ? this.token1 : this.token0)
-    return [inputAmount, new Pair(inputReserve.add(inputAmount), inputRealReserve.add(inputAmount), outputRealReserve.subtract(outputAmount), outputReserve.subtract(outputAmount))]
+    return [inputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount), inputRealReserve.add(inputAmount), outputRealReserve.subtract(outputAmount))]
   }
 
   public getLiquidityMinted(
