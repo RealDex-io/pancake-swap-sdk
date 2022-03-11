@@ -34,9 +34,9 @@ var Rounding;
   Rounding[Rounding["ROUND_UP"] = 2] = "ROUND_UP";
 })(Rounding || (Rounding = {}));
 
-var FACTORY_ADDRESS = '0x5f5E8e164056be832190eCAFC125B51A4E563aE8';
+var FACTORY_ADDRESS = '0x479871B22AEC478d54BfC41Fc8FaA7CBEc762194';
 var FACTORY_ADDRESS_MAP = (_FACTORY_ADDRESS_MAP = {}, _FACTORY_ADDRESS_MAP[ChainId.MAINNET] = FACTORY_ADDRESS, _FACTORY_ADDRESS_MAP[ChainId.TESTNET] = '0x5f5E8e164056be832190eCAFC125B51A4E563aE8', _FACTORY_ADDRESS_MAP);
-var INIT_CODE_HASH = '0x7e0874fa318eaf1fd6d9bdcf81cbea0ab5298196de8d27fcf83ee15c98e91e77';
+var INIT_CODE_HASH = '0x2a91c5f0cfb83b4719182a5e8c5d74fec1ac9b53eca3d7de19a66786bd8519ec';
 var INIT_CODE_HASH_MAP = (_INIT_CODE_HASH_MAP = {}, _INIT_CODE_HASH_MAP[ChainId.MAINNET] = INIT_CODE_HASH, _INIT_CODE_HASH_MAP[ChainId.TESTNET] = '0x7e0874fa318eaf1fd6d9bdcf81cbea0ab5298196de8d27fcf83ee15c98e91e77', _INIT_CODE_HASH_MAP);
 var MINIMUM_LIQUIDITY = /*#__PURE__*/JSBI.BigInt(1000); // exports for internal consumption
 
@@ -1469,6 +1469,12 @@ var Router = /*#__PURE__*/function () {
 
 var IPancakePair = [
 	{
+		inputs: [
+		],
+		stateMutability: "nonpayable",
+		type: "constructor"
+	},
+	{
 		anonymous: false,
 		inputs: [
 			{
@@ -1597,15 +1603,27 @@ var IPancakePair = [
 		inputs: [
 			{
 				indexed: false,
-				internalType: "uint112",
+				internalType: "uint256",
 				name: "reserve0",
-				type: "uint112"
+				type: "uint256"
 			},
 			{
 				indexed: false,
-				internalType: "uint112",
+				internalType: "uint256",
 				name: "reserve1",
-				type: "uint112"
+				type: "uint256"
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "aReserve0",
+				type: "uint256"
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "aReserve1",
+				type: "uint256"
 			}
 		],
 		name: "Sync",
@@ -1637,7 +1655,6 @@ var IPancakePair = [
 		type: "event"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "DOMAIN_SEPARATOR",
@@ -1648,12 +1665,10 @@ var IPancakePair = [
 				type: "bytes32"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "MINIMUM_LIQUIDITY",
@@ -1664,12 +1679,10 @@ var IPancakePair = [
 				type: "uint256"
 			}
 		],
-		payable: false,
-		stateMutability: "pure",
+		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "PERMIT_TYPEHASH",
@@ -1680,21 +1693,19 @@ var IPancakePair = [
 				type: "bytes32"
 			}
 		],
-		payable: false,
-		stateMutability: "pure",
+		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 			{
 				internalType: "address",
-				name: "owner",
+				name: "",
 				type: "address"
 			},
 			{
 				internalType: "address",
-				name: "spender",
+				name: "",
 				type: "address"
 			}
 		],
@@ -1706,12 +1717,10 @@ var IPancakePair = [
 				type: "uint256"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: false,
 		inputs: [
 			{
 				internalType: "address",
@@ -1732,16 +1741,14 @@ var IPancakePair = [
 				type: "bool"
 			}
 		],
-		payable: false,
 		stateMutability: "nonpayable",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 			{
 				internalType: "address",
-				name: "owner",
+				name: "",
 				type: "address"
 			}
 		],
@@ -1753,12 +1760,10 @@ var IPancakePair = [
 				type: "uint256"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: false,
 		inputs: [
 			{
 				internalType: "address",
@@ -1779,12 +1784,10 @@ var IPancakePair = [
 				type: "uint256"
 			}
 		],
-		payable: false,
 		stateMutability: "nonpayable",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "decimals",
@@ -1795,12 +1798,10 @@ var IPancakePair = [
 				type: "uint8"
 			}
 		],
-		payable: false,
-		stateMutability: "pure",
+		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "factory",
@@ -1811,59 +1812,87 @@ var IPancakePair = [
 				type: "address"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: true,
+		inputs: [
+		],
+		name: "getPairInfo",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "_reserve0",
+				type: "uint256"
+			},
+			{
+				internalType: "uint256",
+				name: "_reserve1",
+				type: "uint256"
+			},
+			{
+				internalType: "uint256",
+				name: "_aReserve0",
+				type: "uint256"
+			},
+			{
+				internalType: "uint256",
+				name: "_aReserve1",
+				type: "uint256"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
 		inputs: [
 		],
 		name: "getReserves",
 		outputs: [
 			{
-				internalType: "uint112",
-				name: "reserve0",
-				type: "uint112"
+				internalType: "uint256",
+				name: "_reserve0",
+				type: "uint256"
 			},
 			{
-				internalType: "uint112",
-				name: "reserve1",
-				type: "uint112"
+				internalType: "uint256",
+				name: "_reserve1",
+				type: "uint256"
 			},
 			{
 				internalType: "uint32",
-				name: "blockTimestampLast",
+				name: "_blockTimestampLast",
 				type: "uint32"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: false,
 		inputs: [
 			{
 				internalType: "address",
-				name: "",
+				name: "_token0",
 				type: "address"
 			},
 			{
 				internalType: "address",
-				name: "",
+				name: "_token1",
 				type: "address"
+			},
+			{
+				internalType: "uint256",
+				name: "_aFactor",
+				type: "uint256"
 			}
 		],
 		name: "initialize",
 		outputs: [
 		],
-		payable: false,
 		stateMutability: "nonpayable",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "kLast",
@@ -1874,12 +1903,10 @@ var IPancakePair = [
 				type: "uint256"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: false,
 		inputs: [
 			{
 				internalType: "address",
@@ -1895,12 +1922,10 @@ var IPancakePair = [
 				type: "uint256"
 			}
 		],
-		payable: false,
 		stateMutability: "nonpayable",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "name",
@@ -1911,16 +1936,14 @@ var IPancakePair = [
 				type: "string"
 			}
 		],
-		payable: false,
-		stateMutability: "pure",
+		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 			{
 				internalType: "address",
-				name: "owner",
+				name: "",
 				type: "address"
 			}
 		],
@@ -1932,12 +1955,10 @@ var IPancakePair = [
 				type: "uint256"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: false,
 		inputs: [
 			{
 				internalType: "address",
@@ -1978,12 +1999,10 @@ var IPancakePair = [
 		name: "permit",
 		outputs: [
 		],
-		payable: false,
 		stateMutability: "nonpayable",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "price0CumulativeLast",
@@ -1994,12 +2013,10 @@ var IPancakePair = [
 				type: "uint256"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "price1CumulativeLast",
@@ -2010,12 +2027,10 @@ var IPancakePair = [
 				type: "uint256"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: false,
 		inputs: [
 			{
 				internalType: "address",
@@ -2026,12 +2041,10 @@ var IPancakePair = [
 		name: "skim",
 		outputs: [
 		],
-		payable: false,
 		stateMutability: "nonpayable",
 		type: "function"
 	},
 	{
-		constant: false,
 		inputs: [
 			{
 				internalType: "uint256",
@@ -2057,12 +2070,10 @@ var IPancakePair = [
 		name: "swap",
 		outputs: [
 		],
-		payable: false,
 		stateMutability: "nonpayable",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "symbol",
@@ -2073,23 +2084,19 @@ var IPancakePair = [
 				type: "string"
 			}
 		],
-		payable: false,
-		stateMutability: "pure",
+		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: false,
 		inputs: [
 		],
 		name: "sync",
 		outputs: [
 		],
-		payable: false,
 		stateMutability: "nonpayable",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "token0",
@@ -2100,12 +2107,10 @@ var IPancakePair = [
 				type: "address"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "token1",
@@ -2116,12 +2121,10 @@ var IPancakePair = [
 				type: "address"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: true,
 		inputs: [
 		],
 		name: "totalSupply",
@@ -2132,12 +2135,10 @@ var IPancakePair = [
 				type: "uint256"
 			}
 		],
-		payable: false,
 		stateMutability: "view",
 		type: "function"
 	},
 	{
-		constant: false,
 		inputs: [
 			{
 				internalType: "address",
@@ -2158,12 +2159,10 @@ var IPancakePair = [
 				type: "bool"
 			}
 		],
-		payable: false,
 		stateMutability: "nonpayable",
 		type: "function"
 	},
 	{
-		constant: false,
 		inputs: [
 			{
 				internalType: "address",
@@ -2189,7 +2188,20 @@ var IPancakePair = [
 				type: "bool"
 			}
 		],
-		payable: false,
+		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "_aFactor",
+				type: "uint256"
+			}
+		],
+		name: "updateFactor",
+		outputs: [
+		],
 		stateMutability: "nonpayable",
 		type: "function"
 	}
