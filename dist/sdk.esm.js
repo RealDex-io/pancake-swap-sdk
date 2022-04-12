@@ -34,10 +34,10 @@ var Rounding;
   Rounding[Rounding["ROUND_UP"] = 2] = "ROUND_UP";
 })(Rounding || (Rounding = {}));
 
-var FACTORY_ADDRESS = '0x479871B22AEC478d54BfC41Fc8FaA7CBEc762194';
+var FACTORY_ADDRESS = '0xBeac7BB04b44E6CA73F2C0fA22AFb782EdDEb7A2';
 var FACTORY_ADDRESS_MAP = (_FACTORY_ADDRESS_MAP = {}, _FACTORY_ADDRESS_MAP[ChainId.MAINNET] = FACTORY_ADDRESS, _FACTORY_ADDRESS_MAP[ChainId.TESTNET] = '0xBeac7BB04b44E6CA73F2C0fA22AFb782EdDEb7A2', _FACTORY_ADDRESS_MAP);
 var INIT_CODE_HASH = '0x2a91c5f0cfb83b4719182a5e8c5d74fec1ac9b53eca3d7de19a66786bd8519ec';
-var INIT_CODE_HASH_MAP = (_INIT_CODE_HASH_MAP = {}, _INIT_CODE_HASH_MAP[ChainId.MAINNET] = INIT_CODE_HASH, _INIT_CODE_HASH_MAP[ChainId.TESTNET] = '0xef9ac69d7a2e911e9003347be534f77a2c7523a23cc89b14fe918ebab6e91942', _INIT_CODE_HASH_MAP);
+var INIT_CODE_HASH_MAP = (_INIT_CODE_HASH_MAP = {}, _INIT_CODE_HASH_MAP[ChainId.MAINNET] = INIT_CODE_HASH, _INIT_CODE_HASH_MAP[ChainId.TESTNET] = '0x2a91c5f0cfb83b4719182a5e8c5d74fec1ac9b53eca3d7de19a66786bd8519ec', _INIT_CODE_HASH_MAP);
 var MINIMUM_LIQUIDITY = /*#__PURE__*/JSBI.BigInt(1000); // exports for internal consumption
 
 var ZERO = /*#__PURE__*/JSBI.BigInt(0);
@@ -785,8 +785,6 @@ var Pair = /*#__PURE__*/function () {
       PAIR_ADDRESS_CACHE = _extends({}, PAIR_ADDRESS_CACHE, (_extends3 = {}, _extends3[tokens[0].address] = _extends({}, (_PAIR_ADDRESS_CACHE2 = PAIR_ADDRESS_CACHE) === null || _PAIR_ADDRESS_CACHE2 === void 0 ? void 0 : _PAIR_ADDRESS_CACHE2[tokens[0].address], (_extends2 = {}, _extends2[tokens[1].address] = getCreate2Address(FACTORY_ADDRESS, keccak256(['bytes'], [pack(['address', 'address', 'uint256'], [tokens[0].address, tokens[1].address, aFactor.toString()])]), INIT_CODE_HASH), _extends2)), _extends3));
     }
 
-    console.log(FACTORY_ADDRESS);
-    console.log(INIT_CODE_HASH);
     return PAIR_ADDRESS_CACHE[tokens[0].address][tokens[1].address];
   }
   /**

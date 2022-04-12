@@ -13,7 +13,7 @@ export declare enum Rounding {
     ROUND_HALF_UP = 1,
     ROUND_UP = 2
 }
-export declare const FACTORY_ADDRESS = "0x479871B22AEC478d54BfC41Fc8FaA7CBEc762194";
+export declare const FACTORY_ADDRESS = "0xBeac7BB04b44E6CA73F2C0fA22AFb782EdDEb7A2";
 export declare const FACTORY_ADDRESS_MAP: {
     56: string;
     97: string;
