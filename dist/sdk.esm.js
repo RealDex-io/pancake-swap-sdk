@@ -35,9 +35,9 @@ var Rounding;
 })(Rounding || (Rounding = {}));
 
 var FACTORY_ADDRESS = '0x479871B22AEC478d54BfC41Fc8FaA7CBEc762194';
-var FACTORY_ADDRESS_MAP = (_FACTORY_ADDRESS_MAP = {}, _FACTORY_ADDRESS_MAP[ChainId.MAINNET] = FACTORY_ADDRESS, _FACTORY_ADDRESS_MAP[ChainId.TESTNET] = '0x5f5E8e164056be832190eCAFC125B51A4E563aE8', _FACTORY_ADDRESS_MAP);
+var FACTORY_ADDRESS_MAP = (_FACTORY_ADDRESS_MAP = {}, _FACTORY_ADDRESS_MAP[ChainId.MAINNET] = FACTORY_ADDRESS, _FACTORY_ADDRESS_MAP[ChainId.TESTNET] = '0xBeac7BB04b44E6CA73F2C0fA22AFb782EdDEb7A2', _FACTORY_ADDRESS_MAP);
 var INIT_CODE_HASH = '0x2a91c5f0cfb83b4719182a5e8c5d74fec1ac9b53eca3d7de19a66786bd8519ec';
-var INIT_CODE_HASH_MAP = (_INIT_CODE_HASH_MAP = {}, _INIT_CODE_HASH_MAP[ChainId.MAINNET] = INIT_CODE_HASH, _INIT_CODE_HASH_MAP[ChainId.TESTNET] = '0x7e0874fa318eaf1fd6d9bdcf81cbea0ab5298196de8d27fcf83ee15c98e91e77', _INIT_CODE_HASH_MAP);
+var INIT_CODE_HASH_MAP = (_INIT_CODE_HASH_MAP = {}, _INIT_CODE_HASH_MAP[ChainId.MAINNET] = INIT_CODE_HASH, _INIT_CODE_HASH_MAP[ChainId.TESTNET] = '0xef9ac69d7a2e911e9003347be534f77a2c7523a23cc89b14fe918ebab6e91942', _INIT_CODE_HASH_MAP);
 var MINIMUM_LIQUIDITY = /*#__PURE__*/JSBI.BigInt(1000); // exports for internal consumption
 
 var ZERO = /*#__PURE__*/JSBI.BigInt(0);
@@ -71,6 +71,9 @@ function _defineProperties(target, props) {
 function _createClass(Constructor, protoProps, staticProps) {
   if (protoProps) _defineProperties(Constructor.prototype, protoProps);
   if (staticProps) _defineProperties(Constructor, staticProps);
+  Object.defineProperty(Constructor, "prototype", {
+    writable: false
+  });
   return Constructor;
 }
 
@@ -95,7 +98,8 @@ function _extends() {
 function _inheritsLoose(subClass, superClass) {
   subClass.prototype = Object.create(superClass.prototype);
   subClass.prototype.constructor = subClass;
-  subClass.__proto__ = superClass;
+
+  _setPrototypeOf(subClass, superClass);
 }
 
 function _getPrototypeOf(o) {
@@ -120,7 +124,7 @@ function _isNativeReflectConstruct() {
   if (typeof Proxy === "function") return true;
 
   try {
-    Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+    Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
     return true;
   } catch (e) {
     return false;
@@ -208,28 +212,24 @@ function _arrayLikeToArray(arr, len) {
 }
 
 function _createForOfIteratorHelperLoose(o, allowArrayLike) {
-  var it;
+  var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
+  if (it) return (it = it.call(o)).next.bind(it);
 
-  if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
-    if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-      if (it) o = it;
-      var i = 0;
-      return function () {
-        if (i >= o.length) return {
-          done: true
-        };
-        return {
-          done: false,
-          value: o[i++]
-        };
+  if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+    if (it) o = it;
+    var i = 0;
+    return function () {
+      if (i >= o.length) return {
+        done: true
       };
-    }
-
-    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+      return {
+        done: false,
+        value: o[i++]
+      };
+    };
   }
 
-  it = o[Symbol.iterator]();
-  return it.next.bind(it);
+  throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
 // see https://stackoverflow.com/a/41102306
@@ -766,14 +766,15 @@ var Price = /*#__PURE__*/function (_Fraction) {
 
 var PAIR_ADDRESS_CACHE = {};
 var Pair = /*#__PURE__*/function () {
-  function Pair(tokenAmountA, tokenAmountB) {
+  function Pair(tokenAmountA, tokenAmountB, aFactor) {
     var tokenAmounts = tokenAmountA.token.sortsBefore(tokenAmountB.token) // does safety checks
     ? [tokenAmountA, tokenAmountB] : [tokenAmountB, tokenAmountA];
-    this.liquidityToken = new Token(tokenAmounts[0].token.chainId, Pair.getAddress(tokenAmounts[0].token, tokenAmounts[1].token), 18, 'Cake-LP', 'Pancake LPs');
+    this.aFactor = aFactor;
+    this.liquidityToken = new Token(tokenAmounts[0].token.chainId, Pair.getAddress(tokenAmounts[0].token, tokenAmounts[1].token, aFactor), 18, 'Cake-LP', 'Pancake LPs');
     this.tokenAmounts = tokenAmounts;
   }
 
-  Pair.getAddress = function getAddress(tokenA, tokenB) {
+  Pair.getAddress = function getAddress(tokenA, tokenB, aFactor) {
     var _PAIR_ADDRESS_CACHE, _PAIR_ADDRESS_CACHE$t;
 
     var tokens = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]; // does safety checks
@@ -781,7 +782,7 @@ var Pair = /*#__PURE__*/function () {
     if (((_PAIR_ADDRESS_CACHE = PAIR_ADDRESS_CACHE) === null || _PAIR_ADDRESS_CACHE === void 0 ? void 0 : (_PAIR_ADDRESS_CACHE$t = _PAIR_ADDRESS_CACHE[tokens[0].address]) === null || _PAIR_ADDRESS_CACHE$t === void 0 ? void 0 : _PAIR_ADDRESS_CACHE$t[tokens[1].address]) === undefined) {
       var _PAIR_ADDRESS_CACHE2, _extends2, _extends3;
 
-      PAIR_ADDRESS_CACHE = _extends({}, PAIR_ADDRESS_CACHE, (_extends3 = {}, _extends3[tokens[0].address] = _extends({}, (_PAIR_ADDRESS_CACHE2 = PAIR_ADDRESS_CACHE) === null || _PAIR_ADDRESS_CACHE2 === void 0 ? void 0 : _PAIR_ADDRESS_CACHE2[tokens[0].address], (_extends2 = {}, _extends2[tokens[1].address] = getCreate2Address(FACTORY_ADDRESS, keccak256(['bytes'], [pack(['address', 'address'], [tokens[0].address, tokens[1].address])]), INIT_CODE_HASH), _extends2)), _extends3));
+      PAIR_ADDRESS_CACHE = _extends({}, PAIR_ADDRESS_CACHE, (_extends3 = {}, _extends3[tokens[0].address] = _extends({}, (_PAIR_ADDRESS_CACHE2 = PAIR_ADDRESS_CACHE) === null || _PAIR_ADDRESS_CACHE2 === void 0 ? void 0 : _PAIR_ADDRESS_CACHE2[tokens[0].address], (_extends2 = {}, _extends2[tokens[1].address] = getCreate2Address(FACTORY_ADDRESS, keccak256(['bytes'], [pack(['address', 'address', 'uint256'], [tokens[0].address, tokens[1].address, aFactor.toString()])]), INIT_CODE_HASH), _extends2)), _extends3));
     }
 
     return PAIR_ADDRESS_CACHE[tokens[0].address][tokens[1].address];
@@ -838,7 +839,7 @@ var Pair = /*#__PURE__*/function () {
       throw new InsufficientInputAmountError();
     }
 
-    return [outputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount))];
+    return [outputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount), this.aFactor)];
   };
 
   _proto.getInputAmount = function getInputAmount(outputAmount) {
@@ -853,7 +854,7 @@ var Pair = /*#__PURE__*/function () {
     var numerator = JSBI.multiply(JSBI.multiply(inputReserve.raw, outputAmount.raw), FEES_DENOMINATOR);
     var denominator = JSBI.multiply(JSBI.subtract(outputReserve.raw, outputAmount.raw), FEES_NUMERATOR);
     var inputAmount = new TokenAmount(outputAmount.token.equals(this.token0) ? this.token1 : this.token0, JSBI.add(JSBI.divide(numerator, denominator), ONE));
-    return [inputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount))];
+    return [inputAmount, new Pair(inputReserve.add(inputAmount), outputReserve.subtract(outputAmount), this.aFactor)];
   };
 
   _proto.getLiquidityMinted = function getLiquidityMinted(totalSupply, tokenAmountA, tokenAmountB) {
@@ -1407,6 +1408,9 @@ var Router = /*#__PURE__*/function () {
     var path = trade.route.path.map(function (token) {
       return token.address;
     });
+    var pairs = trade.route.pairs.map(function (pair) {
+      return pair.liquidityToken.address;
+    });
     var deadline = 'ttl' in options ? "0x" + (Math.floor(new Date().getTime() / 1000) + options.ttl).toString(16) : "0x" + options.deadline.toString(16);
     var useFeeOnTransfer = Boolean(options.feeOnTransfer);
     var methodName;
@@ -1418,17 +1422,17 @@ var Router = /*#__PURE__*/function () {
         if (etherIn) {
           methodName = useFeeOnTransfer ? 'swapExactETHForTokensSupportingFeeOnTransferTokens' : 'swapExactETHForTokens'; // (uint amountOutMin, address[] calldata path, address to, uint deadline)
 
-          args = [amountOut, path, to, deadline];
+          args = [amountOut, path, pairs, to, deadline];
           value = amountIn;
         } else if (etherOut) {
           methodName = useFeeOnTransfer ? 'swapExactTokensForETHSupportingFeeOnTransferTokens' : 'swapExactTokensForETH'; // (uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
 
-          args = [amountIn, amountOut, path, to, deadline];
+          args = [amountIn, amountOut, path, pairs, to, deadline];
           value = ZERO_HEX;
         } else {
           methodName = useFeeOnTransfer ? 'swapExactTokensForTokensSupportingFeeOnTransferTokens' : 'swapExactTokensForTokens'; // (uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
 
-          args = [amountIn, amountOut, path, to, deadline];
+          args = [amountIn, amountOut, path, pairs, to, deadline];
           value = ZERO_HEX;
         }
 
@@ -1440,17 +1444,17 @@ var Router = /*#__PURE__*/function () {
         if (etherIn) {
           methodName = 'swapETHForExactTokens'; // (uint amountOut, address[] calldata path, address to, uint deadline)
 
-          args = [amountOut, path, to, deadline];
+          args = [amountOut, path, pairs, to, deadline];
           value = amountIn;
         } else if (etherOut) {
           methodName = 'swapTokensForExactETH'; // (uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
 
-          args = [amountOut, amountIn, path, to, deadline];
+          args = [amountOut, amountIn, path, pairs, to, deadline];
           value = ZERO_HEX;
         } else {
           methodName = 'swapTokensForExactTokens'; // (uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
 
-          args = [amountOut, amountIn, path, to, deadline];
+          args = [amountOut, amountIn, path, pairs, to, deadline];
           value = ZERO_HEX;
         }
 
