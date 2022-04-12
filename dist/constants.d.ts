@@ -18,7 +18,7 @@ export declare const FACTORY_ADDRESS_MAP: {
     56: string;
     97: string;
 };
-export declare const INIT_CODE_HASH = "0x2a91c5f0cfb83b4719182a5e8c5d74fec1ac9b53eca3d7de19a66786bd8519ec";
+export declare const INIT_CODE_HASH = "0xef9ac69d7a2e911e9003347be534f77a2c7523a23cc89b14fe918ebab6e91942";
 export declare const INIT_CODE_HASH_MAP: {
     56: string;
     97: string;
