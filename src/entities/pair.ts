@@ -44,8 +44,6 @@ export class Pair {
         },
       }
     }
-    console.log(FACTORY_ADDRESS)
-    console.log(INIT_CODE_HASH)
 
     return PAIR_ADDRESS_CACHE[tokens[0].address][tokens[1].address]
   }
