@@ -4,10 +4,10 @@ import { BigintIsh, ChainId } from '../constants';
 import { Token } from './token';
 export declare class Pair {
     readonly liquidityToken: Token;
-    readonly aFactor: string;
+    readonly aFactor: BigintIsh;
     private readonly tokenAmounts;
-    static getAddress(tokenA: Token, tokenB: Token, aFactor: string): string;
-    constructor(tokenAmountA: TokenAmount, tokenAmountB: TokenAmount, aFactor: string);
+    static getAddress(tokenA: Token, tokenB: Token, aFactor: BigintIsh): string;
+    constructor(tokenAmountA: TokenAmount, tokenAmountB: TokenAmount, aFactor: BigintIsh);
     /**
      * Returns true if the token is either token0 or token1
      * @param token to check
